@@ -82,7 +82,7 @@ app.get("/api/livetrack", async (req, res) => {
         const collection = mongoose.connection.collection("trips");
         let lastPoint;
         let trip = await collection.findOne(
-            { imei },
+            { imei, status: "active" },
             { sort: { createdAt: -1 } },
         );
 
@@ -133,25 +133,29 @@ app.get("/api/livetrack", async (req, res) => {
 //     }
 // });
 
-// app.get("/api/trips", async (req, res) => {
-//     try {
-//         const { imei } = req.query;
-//         if (!imei) {
-//             return res
-//                 .status(400)
-//                 .json({ success: false, message: "IMEI is required" });
-//         }
-//         const trips = await getTripsByImei(imei);
-//         res.status(200).json({ success: true, data: trips });
-//     } catch (error) {
-//         console.error("Error fetching trips:", error);
-//         res.status(500).json({
-//             success: false,
-//             message: "Server error",
-//             error: error.message,
-//         });
-//     }
-// });
+app.get("/api/trips", async (req, res) => {
+    try {
+        const { imei } = req.query;
+        if (!imei) {
+            return res
+                .status(400)
+                .json({ success: false, message: "IMEI is required" });
+        }
+        const collection = mongoose.connection.collection("trips");
+        let trips = await collection
+            .find({ imei })
+            .sort({ createdAt: -1 })
+            .toArray();
+        res.status(200).json({ success: true, data: trips });
+    } catch (error) {
+        console.error("Error fetching trips:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
