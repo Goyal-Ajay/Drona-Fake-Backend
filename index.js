@@ -292,6 +292,7 @@ app.get("/api/vehicle", async (req, res) => {
 
         // 6️⃣ Final Response
         res.json({
+            success: true,
             pageDetails: {
                 totalRecords: 1,
                 pageSize: Number(pageSize),
